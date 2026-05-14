@@ -5,19 +5,27 @@ pipeline {
 
         stage('Clone Repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/udaykumar987/Home-Construction-Website.git'
+                git branch: 'main',
+                url: 'https://github.com/udaykumar987/Home-Construction-Website.git'
             }
         }
 
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
-                echo 'Build Stage Completed'
+                sh 'sudo docker build -t home-construction-app .'
             }
         }
 
-        stage('Deploy to Nginx') {
+        stage('Stop Old Container') {
             steps {
-                sh 'sudo cp -r * /var/www/html/'
+                sh 'sudo docker stop home-app || true'
+                sh 'sudo docker rm home-app || true'
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                sh 'sudo docker run -d -p 80:80 --name home-app home-construction-app'
             }
         }
     }
